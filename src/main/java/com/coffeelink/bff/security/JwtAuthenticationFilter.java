@@ -48,19 +48,31 @@ public class JwtAuthenticationFilter extends  OncePerRequestFilter{
             User user = this.userRepository.findByEmail(userEmail)
                     .orElse(null);
             if (user != null && jwtService.isTokenValid(jwt, user)) {
-                GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + user.getRol().toUpperCase());
 
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        user,
-                        null,
-                        Collections.singletonList(authority)
-                );
+                // ---------- ¡AÑADE ESTAS LÍNEAS AQUÍ! ----------
+                System.out.println("--- FILTRO JWT DEBUG ---");
+                System.out.println("Usuario encontrado en DB: " + user.getEmail());
+                System.out.println("Rol (raw) desde la DB: " + user.getRol());
+                System.out.println("--- FIN FILTRO DEBUG ---");
+                // ------------------------------------------------
 
-                authToken.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request)
-                );
+                if (user.getRol() != null) {
+                    GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + user.getRol().toUpperCase());
 
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            user,
+                            null,
+                            Collections.singletonList(authority)
+                    );
+
+                    authToken.setDetails(
+                            new WebAuthenticationDetailsSource().buildDetails(request)
+                    );
+
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                } else {
+                    System.err.println("¡ERROR DE MAPEO! El ROL del usuario " + user.getEmail() + " es NULL en la base de datos.");
+                }
             }
         }
         filterChain.doFilter(request, response);

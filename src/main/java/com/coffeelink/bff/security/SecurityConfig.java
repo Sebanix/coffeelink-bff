@@ -11,7 +11,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -30,21 +29,24 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authz -> authz
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
                         // Rutas públicas
-                        // Deben ingresar todos y ver los productos
                         .requestMatchers("/api/login").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/productos").permitAll() //Obtener los productos
-                        .requestMatchers(HttpMethod.GET, "/api/productos/**").permitAll() //Obtener 1 producto
+                        .requestMatchers(HttpMethod.GET, "/api/productos").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/productos/**").permitAll()
 
                         // Rutas cliente
                         .requestMatchers("/api/comprar/**").hasRole("CLIENTE")
 
-                        // Rutas del farmeador de aura (Admin)
+                        // Rutas del Admin
                         .requestMatchers(HttpMethod.POST, "/api/productos").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/productos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/productos/**").hasRole("ADMIN")
@@ -55,8 +57,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 
