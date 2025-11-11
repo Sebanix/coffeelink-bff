@@ -49,12 +49,8 @@ public class JwtAuthenticationFilter extends  OncePerRequestFilter{
                     .orElse(null);
             if (user != null && jwtService.isTokenValid(jwt, user)) {
 
-                // ---------- ¡AÑADE ESTAS LÍNEAS AQUÍ! ----------
-                System.out.println("--- FILTRO JWT DEBUG ---");
                 System.out.println("Usuario encontrado en DB: " + user.getEmail());
                 System.out.println("Rol (raw) desde la DB: " + user.getRol());
-                System.out.println("--- FIN FILTRO DEBUG ---");
-                // ------------------------------------------------
 
                 if (user.getRol() != null) {
                     GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + user.getRol().toUpperCase());
