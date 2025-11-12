@@ -68,7 +68,7 @@ public class AuthController {
         if (!password.matches(".*[0-9].*")) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La contraseña debe tener al menos un número.");
         }
-        if (!password.matches(".*[!@#$%^&*()_+\\-=[\\]{};':\"\\\\|,./?].*")) {
+        if (!password.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,./?].*")) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La contraseña debe tener al menos un símbolo.");
         }
 
